@@ -36,7 +36,8 @@ func (m *Manager) Confirm(eventID, candidateID int64, note string) error {
 	if c.EventID != eventID {
 		return fmt.Errorf("candidate %d does not belong to event %d", candidateID, eventID)
 	}
-	if c.Status == model.CandidateConfirmed {
+	// 候选一旦被否决即为终态，不能再被确认；已确认的候选同样不可重复确认。
+	if !model.CanTransitionCandidate(c.Status, model.CandidateConfirmed) {
 		return fmt.Errorf("%w: candidate is %s", model.ErrInvalidState, c.Status)
 	}
 	if err := m.db.UpdateCandidateStatus(candidateID, model.CandidateConfirmed); err != nil {
