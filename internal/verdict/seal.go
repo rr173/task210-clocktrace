@@ -17,8 +17,8 @@ func (m *Manager) Seal(eventID int64, note string) error {
 	switch ev.Status {
 	case model.EventSealed:
 		return model.ErrSealed
-	case model.EventConfirmed, model.EventLocalizing:
-		// 允许封存。
+	case model.EventConfirmed:
+		// 只有根因已确认的事件才能封存；定位中、证据不足等状态须拒绝并保持原状。
 	default:
 		return fmt.Errorf("%w: cannot seal event in %s (need confirmed)", model.ErrInvalidState, ev.Status)
 	}
